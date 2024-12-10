@@ -1,3 +1,4 @@
+
 import java.util.Random;
 import java.util.Comparator;
 import javafx.scene.image.*;
@@ -42,7 +43,7 @@ public class Card implements Comparable<Card>{
     }
 
     public static Card[] newDeck(){
-        Card[] deck = new Card[51];
+        Card[] deck = new Card[52];
         for(int i = 0; i < deck.length; i++){
             deck[i] = new Card(i);
         }

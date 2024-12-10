@@ -1,3 +1,4 @@
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -6,6 +7,7 @@ public class Player{
 	private List<Card> handCards = new ArrayList<>();
     private List<Card> choosenCards= new ArrayList<>();
     private boolean turnStatus = true;
+    private boolean isAlive = true;
     
     //Interact with handCards
     public void removeHandCard(Card card){
@@ -48,12 +50,23 @@ public class Player{
         return choosenCards.remove(card);
     }
     
+    //Interact with turnStatus
+    
     public void changeTurnStatus() {
     	turnStatus = !turnStatus;
     };
     
     public boolean getTurnStatus() {
     	return turnStatus;
+    }
+    
+    //Determine human/bot
+    public boolean getPlayerStatus() {
+    	return isAlive;
+    }
+    
+    public void updatePlayerStatus() {
+    	isAlive = !isAlive;
     }
 
 }

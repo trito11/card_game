@@ -1,3 +1,4 @@
+
 import java.util.*;
 import javafx.application.*;
 import javafx.scene.Scene;
@@ -10,8 +11,8 @@ import javafx.event.*;
 import javafx.scene.paint.Color;
 
 public class Game extends Application{
-    final static int PLAYERCARD = 12;
-    static int currentPlayerIdx, numberOfPlayer, currentLeadingPlayer = 0;
+    final static int PLAYERCARD = 13;
+    static int currentPlayerIdx, numberOfPlayer, numberOfPlayerHuman, currentLeadingPlayer = 0;
     static Player currentPlayer;
     static Player[] players;
     static Card[] deck;
@@ -98,8 +99,8 @@ public class Game extends Application{
         player2CardsPane.setHgap(5);    player4CardsPane.setHgap(5);
         player2CardsPane.setPrefHeight(235); player4CardsPane.setPrefHeight(235);
         for(int i = 0; i < PLAYERCARD; i++){
-            player2CardsPane.add(playerCardsImage[1][i], i%2, i/2);
-            player4CardsPane.add(playerCardsImage[3][i], i%2, i/2);
+            player2CardsPane.add(playerCardsImage[1][i], i%3, i/3);
+            player4CardsPane.add(playerCardsImage[3][i], i%3, i/3);
         }
 
         poolCardsPane = new GridPane();
@@ -185,6 +186,32 @@ public class Game extends Application{
 
         HBox mainWrapper = new HBox();
         mainWrapper.getChildren().addAll(mainPane, capturesBoard);
+        
+        
+        // human menu design begin
+        VBox humanPlayerMenu = new VBox(30);
+        
+        Text humanPlayerMenuText = new Text("Please Select Number of Human Player");
+        humanPlayerMenuText.setStyle("-fx-font: 25 arial");
+        humanPlayerMenuText.setFill(Color.WHITE);
+        
+        HBox humanPlayerMenuSelection = new HBox(20);
+        Button[] humanPlayerSelectionButton = new Button[4];
+        for(int i = 0; i < humanPlayerSelectionButton.length; i++){
+        	humanPlayerSelectionButton[i] = new Button(i+1+"");
+        	humanPlayerSelectionButton[i].setDisable(true);
+        	humanPlayerMenuSelection.getChildren().add(humanPlayerSelectionButton[i]);
+        }
+        
+        humanPlayerMenu.getChildren().addAll(humanPlayerMenuText, humanPlayerMenuSelection);
+        
+        mainPane.setCenter(humanPlayerMenu);
+        BorderPane.setAlignment(humanPlayerMenu, Pos.CENTER);
+        humanPlayerMenu.setAlignment(Pos.CENTER);
+        humanPlayerMenuSelection.setAlignment(Pos.CENTER);
+        // human menu design end
+        
+        
         // main menu design begin
         VBox mainMenu = new VBox(30);
 
@@ -206,6 +233,7 @@ public class Game extends Application{
         mainMenu.setAlignment(Pos.CENTER);
         mainMenuSelection.setAlignment(Pos.CENTER);
         // main menu design end
+        
 
         // winning menu design begin
         VBox winningMenu = new VBox(30);
@@ -247,39 +275,53 @@ public class Game extends Application{
         for(int i = 0; i < playerSelectionButton.length; i++){
             int p = i+2;
             playerSelectionButton[i].setOnAction(e -> {
+            	mainPane.setCenter(humanPlayerMenu);
+            	System.out.println("Player: " + p);
                 numberOfPlayer = p;
-                players = new Player[numberOfPlayer];
-                for(int j = 0; j < players.length; j++)
-                    players[j] = new Player();
-
-                initializeGame(numberOfPlayer);
-
-                currentPlayerIdx = 0;
-                currentPlayer = players[currentPlayerIdx];
-
-                setNextPlayer(currentPlayerIdx);
-
-                mainPane.setCenter(poolCardsPane);
-
-                for(int j = 0; j < 4; j++) {
-                	playerCaptureButton[j].setDisable(true);
-                	skipTurnButton[j].setDisable(true);
+                for(int z = 0; z < numberOfPlayer; z++){
+                	int h = z + 1;
+                	humanPlayerSelectionButton[z].setDisable(false);
+                	humanPlayerSelectionButton[z].setOnAction(event -> {
+                		System.out.println("Human: " + h);
+                		numberOfPlayerHuman = h;
+                		players = new Player[numberOfPlayer];
+                		for(int j = 0; j < players.length; j++)
+                			players[j] = new Player();
+                		
+                		for(int x = numberOfPlayerHuman; x < numberOfPlayer; x++) {
+                			players[x].updatePlayerStatus();
+                		}
+                		
+                		initializeGame(numberOfPlayer);
+                		
+                		currentPlayerIdx = 0;
+                		currentPlayer = players[currentPlayerIdx];
+                		
+                		setNextPlayer(currentPlayerIdx);
+                		
+                		mainPane.setCenter(poolCardsPane);
+                		
+                		for(int j = 0; j < 4; j++) {
+                			playerCaptureButton[j].setDisable(true);
+                			skipTurnButton[j].setDisable(true);
+                		}
+                		
+                		playerCaptureButton[currentPlayerIdx].setDisable(false);
+                		if(currentPlayerIdx != currentLeadingPlayer) skipTurnButton[currentPlayerIdx].setDisable(false);
+                		for(int j = 0; j < 4; j++)
+                			if(j < numberOfPlayer)
+                				playerPane[j].setVisible(true);
+                			else
+                				playerPane[j].setVisible(false);
+                		
+                		for(int j = 0; j < 4; j++)
+                			playerScoreText[j].setText("Status: Playing");
+                		
+                		// reset capture board
+                		captureStatus.setText("No Capture");
+                		
+                	});
                 }
-                
-                playerCaptureButton[currentPlayerIdx].setDisable(false);
-                if(currentPlayerIdx != currentLeadingPlayer) skipTurnButton[currentPlayerIdx].setDisable(false);
-                for(int j = 0; j < 4; j++)
-                    if(j < numberOfPlayer)
-                        playerPane[j].setVisible(true);
-                    else
-                        playerPane[j].setVisible(false);
-
-                for(int j = 0; j < 4; j++)
-                    playerScoreText[j].setText("Status: Playing");
-
-                // reset capture board
-                captureStatus.setText("No Capture");
-
             });
         }
         
@@ -347,6 +389,7 @@ public class Game extends Application{
                     
                     
                     // successful play, next player
+                    System.out.println("Player " + currentPlayerIdx + ": " + currentPlayer.getPlayerStatus());
                     playerCaptureButton[currentPlayerIdx].setDisable(true);
                     skipTurnButton[currentPlayerIdx].setDisable(true);
                     do {
